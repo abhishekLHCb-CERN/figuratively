@@ -198,13 +198,7 @@ def _is_roofit(items) -> bool:
 
 def component_names(items) -> list[str]:
     """Names of the fit components found in a RooFit frame, in file order (total and pulls excluded)."""
-    names: list[str] = []
-    for key, o in items.items():
-        if isinstance(o, D.G) and o.classname == "RooCurve" and not re.match(r"(pull|resid)_", key):
-            c = "+".join(D.parse_roofit_name(key)["components"])
-            if c and c not in names:
-                names.append(c)
-    return names
+    return list(D.roofit_curves(items)[1])
 
 
 # ---- compact style strings: "red dashed fill thick"
@@ -369,6 +363,10 @@ def _fit(p, items, cfg, opts, called, strict):
     if cfg["checks"]:
         from .checks import fit_warnings
 
+        bands = [k for k in D.roofit_curves(items)[2] if not any(re.search(h, k) for h in hide or [])]
+        if bands:
+            _problem(f"error bands are not drawn: {', '.join(bands)} (hide= silences this)", strict)
+
         for w in fit_warnings(items, cfg["nparams"]):
             _problem(w, strict)
     pv = opts.pop("pull", True)
@@ -398,8 +396,8 @@ def _compare(p, runs, cfg, opts, strict):
              and not k.startswith(("pull_", "resid_"))] for _, items in runs]
     totals = []
     for n, items in runs:
-        t = next((o for k, o in items.items() if isinstance(o, D.G) and o.classname == "RooCurve"
-                  and not D.parse_roofit_name(k)["components"]), None)
+        key = D.roofit_curves(items)[0]
+        t = items.get(key) if key is not None else None
         if t is None:
             raise ValueError(f"compare: '{n}' has no total curve")
         totals.append(t)
@@ -885,6 +883,8 @@ def plot(*specs, out=None, save=True, **opts) -> Plot | list:
     else:
         objs = [(n, o) for n, kind, payload, _t in res
                 for n, o in (payload.items() if kind == "frame" else [(n, payload)])]
+        if not objs:
+            raise ValueError(f"nothing to draw: '{', '.join(str(s) for s in specs)}' holds no readable data or curves")
         first = objs[0][1]
         _overlay(p, objs, cfg, opts, strict)
     _decorate(p, first, cfg, opts, scaled=bool(sx), texts=texts, panel=panel)

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import re
 import sys
 import warnings
 from pathlib import Path
@@ -101,7 +102,9 @@ def main(argv=None):
         for kv in rest:
             k, _, v = kv.partition("=")
             opts[k] = _value(k, v)
-        plot(h, out=a.out or f"plots/{h.name}_{a.targets[2]}", **opts)
+        # an expression such as 'pt/1000' must name one file, not a folder
+        expr = re.sub(r"[^\w.+-]+", "_", a.targets[2].replace("/", " over ").replace("*", " times ")).strip("_.")
+        plot(h, out=a.out or f"plots/{h.name}_{expr[:80]}", **opts)
         return
     if cmd == "options":
         options()

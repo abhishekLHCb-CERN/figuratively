@@ -11,14 +11,15 @@
 // Each keyword is an option of fg.plot written as key=value (see `figly options`).
 
 #pragma once
-#include <cstdio>
+#include <stdlib.h>  // mkdtemp (Linux)
+#include <unistd.h>  // mkdtemp (macOS), rmdir
+
 #include <string>
 #include <vector>
 
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TObject.h"
-#include "TString.h"
 #include "TSystem.h"
 
 namespace Figuratively {
@@ -47,12 +48,11 @@ inline std::string KeywordArgs(const std::vector<std::string> &keywords) {
 inline int Plot(TObject *obj, const std::vector<std::string> &keywords = {}, const std::string &outdir = ".") {
   if (!obj) return 1;
   const std::string name = (obj->GetName() && *obj->GetName()) ? obj->GetName() : "object";
-  // A unique file created atomically (mkstemp), so a predictable name in a shared /tmp cannot be hijacked.
-  TString base;
-  FILE *created = gSystem->TempFileName(base, nullptr, ".root");
-  if (!created) return 1;
-  fclose(created);
-  const std::string tmp = base.Data();
+  // A private folder created atomically (mkdtemp, mode 0700), so a predictable name in a shared /tmp cannot
+  // be hijacked. (TSystem::TempFileName accepts a suffix only from ROOT 6.32.)
+  std::string folder = std::string(gSystem->TempDirectory()) + "/figuratively_XXXXXX";
+  if (!mkdtemp(&folder[0])) return 1;
+  const std::string tmp = folder + "/object.root";
   {
     TDirectory *previous = gDirectory;  // do not disturb the caller's current directory
     TFile file(tmp.c_str(), "RECREATE");
@@ -63,6 +63,7 @@ inline int Plot(TObject *obj, const std::vector<std::string> &keywords = {}, con
   const std::string cmd = "figly " + Quote(tmp + ":" + name) + " -o " + Quote(outdir + "/" + name) + KeywordArgs(keywords);
   const int status = gSystem->Exec(cmd.c_str());
   gSystem->Unlink(tmp.c_str());
+  rmdir(folder.c_str());
   return status;
 }
 

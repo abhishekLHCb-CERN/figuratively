@@ -12,8 +12,8 @@ def panel_numbers(items, nparams=None):
     """Data/model numbers of one RooFit panel, or None when it has no data points or no total curve."""
     data = next((o for k, o in items.items() if isinstance(o, D.G) and o.classname == "RooHist"
                  and not k.startswith(("pull_", "resid_"))), None)
-    total = next((o for k, o in items.items() if isinstance(o, D.G) and o.classname == "RooCurve"
-                  and not D.parse_roofit_name(k)["components"]), None)
+    tkey, ckeys, _bands = D.roofit_curves(items)
+    total = items.get(tkey) if tkey is not None else None
     if data is None or total is None:
         return None
     lo, hi = data.x - data.exl, data.x + data.exh
@@ -22,12 +22,7 @@ def panel_numbers(items, nparams=None):
     ok = err > 0
     pull = np.where(ok, (data.y - mod) / np.where(ok, err, 1.0), 0.0)
     entries, model = float(data.y.sum()), float(mod.sum())
-    comps = {}
-    for k, o in items.items():
-        if isinstance(o, D.G) and o.classname == "RooCurve":
-            c = "+".join(D.parse_roofit_name(k)["components"])
-            if c:
-                comps[c] = float(model_average(o, lo, hi).sum())
+    comps = {c: float(model_average(items[k], lo, hi).sum()) for c, k in ckeys.items()}
     n_bins = len(data.y)
     out = dict(entries=entries, model=model, ratio=entries / model if model > 0 else float("nan"),
                bins=n_bins, empty=int((data.y == 0).sum()), chi2=float((pull[ok] ** 2).sum()),

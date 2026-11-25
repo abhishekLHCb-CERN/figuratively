@@ -3,6 +3,7 @@ tiny part of its API that is used: TFile(path, mode), obj.Write(name), obj.Class
 import subprocess
 import sys
 import types
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -164,8 +165,9 @@ def test_hostile_names_cannot_inject_shell_commands(tmp_path):
                         str(tmp_path / "main.cpp"), "-o", str(tmp_path / "t")], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     env = {"PATH": f"{fake.parent}:/usr/bin:/bin"}
+    before = set(Path("/tmp").glob("figuratively_*"))
     subprocess.run([str(tmp_path / "t"), evil, "label=" + evil, "dir " + evil], env=env, check=True)
     assert not (tmp_path / "INJECTED").exists()                    # nothing was executed
     received = log.read_text().splitlines()
     assert any(evil in line for line in received) and any(line == "label=" + evil for line in received)
-    assert not [p for p in __import__("pathlib").Path("/tmp").glob("figtest*.root")]   # the temporary file is removed
+    assert set(Path("/tmp").glob("figuratively_*")) <= before   # the temporary file and folder are removed

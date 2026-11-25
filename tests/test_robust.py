@@ -101,6 +101,9 @@ def test_canvas_reader_failure_is_explained(monkeypatch):
         def keys(self):
             return ["c;1"]
 
+        def key(self, k):
+            return type("Key", (), {"fClassName": "TCanvas"})()
+
     monkeypatch.setattr(D.uproot, "open", lambda path: File())
     monkeypatch.setattr(D, "_canvas_fallback", lambda f, k: (_ for _ in ()).throw(AttributeError("boom")))
     with pytest.raises(RuntimeError, match="could not read canvas"):

@@ -42,6 +42,8 @@ object, so anything it does not do automatically can still be changed afterwards
 
 - Reads RooFit canvases, histograms (1D and 2D), profiles and graphs with uproot and matplotlib. No ROOT needed.
 - Detects data, total fit, components, axis titles and units (ROOT's `#gamma` and `^{+}` become mathtext).
+- Components may keep RooFit's names or carry your own (`RooFit.Name("signal")`); the total is the largest curve.
+  `VisualizeError` bands are not drawn, and a warning says so.
 - Recomputes pulls from the data and the total curve, so a stored pull pad is not required.
 - Adds a ratio panel for data against simulation and normalises shapes when the yields differ.
 - Places the label, information lines and legend so that they do not sit on top of the data.

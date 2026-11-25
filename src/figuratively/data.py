@@ -225,7 +225,8 @@ def _dedupe(items) -> dict:
 
 def _direct(pad):
     """Drawable objects, text labels and axis titles that belong directly to one pad (not its sub-pads)."""
-    prims = [p for p in pad.member("fPrimitives") if p is not None]
+    everything = list(pad.member("fPrimitives"))
+    prims = [p for p in everything if p is not None]
     xt = yt = ""
     for p in prims:
         if _is_frame(p):
@@ -236,7 +237,8 @@ def _direct(pad):
         except Exception:
             return False
 
-    attrs: dict = {"logx": flag("fLogx"), "logy": flag("fLogy"), "xrange": None, "skipped": []}
+    attrs: dict = {"logx": flag("fLogx"), "logy": flag("fLogy"), "xrange": None,
+                   "skipped": ["unreadable object"] * (len(everything) - len(prims))}
     for p in prims:
         if _is_frame(p):
             try:
@@ -287,6 +289,43 @@ def parse_roofit_name(name: str) -> dict:
     m = re.search(r"_Comp\[(.*?)\]", name)
     pdf = re.split(r"_(?:Norm|Comp|Range|NormRange|Int)\[", name)[0]
     return {"pdf": pdf, "components": tuple(m.group(1).split(",")) if m else ()}
+
+
+def _is_band(name: str, curve: G) -> bool:
+    """A VisualizeError band is a closed outline: its x runs forwards and then back again."""
+    x = curve.trimmed().x
+    return name.endswith("_errorband") or (len(x) > 3 and int((np.diff(x) < 0).sum()) > len(x) // 4)
+
+
+def roofit_curves(items: dict) -> tuple:
+    """Sort the curves of a RooFit frame into (key of the total fit or None, {component name: key},
+    [keys of error bands]).
+
+    A component is a curve with RooFit's automatic '_Comp[...]' name, or any further curve beside the total
+    (one named with RooFit.Name(), say). Among several curves without '_Comp[...]' the total is the one with
+    the largest area, because it contains its components; of near-equal ones the first in the file wins."""
+    curves, bands = {}, []
+    for key, o in items.items():
+        if isinstance(o, G) and o.classname == "RooCurve" and not re.match(r"(pull|resid)_", key):
+            if _is_band(key, o):
+                bands.append(key)
+            else:
+                curves[key] = o
+    names = {k: "+".join(parse_roofit_name(k)["components"]) for k in curves}
+    plain = [k for k in curves if not names[k]]
+    total = None
+    if plain:
+        area = {}
+        for k in plain:
+            c = curves[k].trimmed()
+            area[k] = float(np.sum(0.5 * (c.y[1:] + c.y[:-1]) * np.diff(c.x)))
+        top = max(area.values())
+        total = next((k for k in plain if area[k] >= top - 0.02 * abs(top)), plain[0])
+    comps: dict = {}
+    for k in curves:
+        if k != total:
+            comps[names[k] if names[k] and names[k] not in comps else k] = k
+    return total, comps, bands
 
 
 def _is_frame(obj) -> bool:
@@ -373,7 +412,9 @@ def _canvas_fallback(f, key):
     import uproot.deserialization as ds
 
     _ = f.file.streamers  # must be loaded before the stub is registered
-    f.file._custom_classes = {**(f.file._custom_classes or {}), "TQObject": Model_TQObject}
+    # Start from uproot's built-in classes: a registry holding only the stub would make uproot rebuild classes
+    # such as TArrayF from the file's streamers, which fails when the file also holds, say, a RooPlot.
+    f.file._custom_classes = {**(f.file._custom_classes or uproot.classes), "TQObject": Model_TQObject}
     chunk, cursor = f.key(key).get_uncompressed_chunk_cursor()
     cursor.skip(6)  # TCanvas version header
     original = ds.read_object_any
@@ -383,6 +424,80 @@ def _canvas_fallback(f, key):
             chunk, cursor, {"breadcrumbs": (), "in_TBranch": False}, f.file, f.file.detached, None)
     finally:
         ds.read_object_any = original
+
+
+class _RooPlot:
+    """What expand() needs of a RooPlot: the frame histogram and the drawable items."""
+    classname = "RooPlot"
+
+    def __init__(self, members: dict):
+        self.all_members = members
+
+    def member(self, name: str):
+        return self.all_members[name]
+
+
+def _rooplot_fallback(f, key):
+    """uproot cannot read a RooPlot: its items are a std::vector<pair<TObject*, string>> written member-wise
+    (all objects, then all draw options), without the streamer uproot needs. Read the members up to the end
+    of that list by hand; nothing after it is needed. Items drawn invisibly are left out, as in ROOT."""
+    import struct
+    import warnings
+
+    import uproot.deserialization as ds
+
+    byte_count, member_wise = 0x40000000, 0x4000
+    _ = f.file.streamers
+    chunk, cursor = f.key(key).get_uncompressed_chunk_cursor()
+    context = {"breadcrumbs": (), "in_TBranch": False}
+    parent = f.file.detached
+
+    def fields(fmt):
+        return cursor.fields(chunk, struct.Struct(fmt), context)
+
+    cursor.skip(6)  # RooPlot byte count and version
+    named = f.file.class_named("TNamed").read(chunk, cursor, context, f.file, parent, None)
+    (count,) = fields(">I")  # the RooPrintable base holds nothing of interest
+    cursor.skip(count & ~byte_count)
+    read = _tolerant(ds.read_object_any)
+    frame = read(chunk, cursor, context, f.file, f.file, parent)
+    start = cursor.index
+    count, version = fields(">IH")
+    if not count & byte_count or not version & member_wise:
+        raise ValueError("the item list is not stored the expected way")
+    end = start + 4 + (count & ~byte_count)
+    (pair_version,) = fields(">H")
+    if pair_version == 0:
+        fields(">I")  # checksum of the pair class
+    (n,) = fields(">i")
+    if not 0 <= n <= (end - start) // 4:
+        raise ValueError(f"impossible number of items ({n})")
+    objs = [read(chunk, cursor, context, f.file, f.file, parent) for _ in range(n)]
+    options = []
+    if n:
+        cursor.skip(6)  # byte count and version of the column of draw options
+        options = [cursor.string(chunk, context) for _ in range(n)]
+    if cursor.index != end:
+        raise ValueError("the item list has an unexpected length")
+    unread = sum(o is None for o in objs)
+    if unread:
+        warnings.warn(f"{unread} object(s) in the RooPlot '{key}' could not be read and are left out", stacklevel=4)
+    shown = [o for o, opt in zip(objs, options) if o is not None and "I" not in opt.partition(":")[2]]
+    return _RooPlot({"fName": named.member("fName"), "fTitle": named.member("fTitle"),
+                     "_hist": frame, "_items": shown})
+
+
+def _read_key(f, key):
+    """f[key], except for a RooPlot, which needs its own reader."""
+    # not f.classname_of(): for an object in a subfolder uproot reads the object to learn its class
+    if f.key(key).fClassName != "RooPlot":
+        return f[key]
+    try:
+        return _rooplot_fallback(f, key)
+    except Exception as e:  # uproot internals differ between versions
+        raise RuntimeError(
+            f"could not read RooPlot '{key}' with uproot {uproot.__version__} ({type(e).__name__}: {e}). "
+            "Workaround: draw it on a TCanvas and save the canvas instead.") from e
 
 
 def split_spec(spec: str):
@@ -417,7 +532,7 @@ def _open_keyed(spec: str):
         raise ValueError(f"'{path}' is not a readable ROOT file ({e})") from None
     with f:
         try:
-            obj = f[key]
+            obj = _read_key(f, key)
         except (KeyError, uproot.KeyInFileError):
             names = [k.split(";")[0] for k in f.keys()]
             drawable = [k.split(";")[0] for k, c in f.classnames().items() if c.startswith(_DRAWABLE)]
@@ -425,7 +540,7 @@ def _open_keyed(spec: str):
                 key = drawable[0]
                 warnings.warn(f"'{split_spec(spec)[1]}' not found in {path}; using the only object in the file: "
                               f"'{key}'. (Plot a whole file with just the file name.)", stacklevel=3)
-                obj = f[key]
+                obj = _read_key(f, key)
             else:
                 near = difflib.get_close_matches(key, names, n=3, cutoff=0.5)
                 hint = f"; did you mean {', '.join(repr(n) for n in near)}?" if near else ""
@@ -438,7 +553,7 @@ def _open_keyed(spec: str):
             except Exception as e:  # uproot internals differ between versions
                 raise RuntimeError(
                     f"could not read canvas '{key}' with uproot {uproot.__version__} ({type(e).__name__}: {e}). "
-                    "Workaround: save the RooPlot/histograms themselves instead of the canvas, or report "
+                    "Workaround: save the RooPlot or the histograms themselves instead of the canvas, or report "
                     "this with your uproot version.") from e
         return obj, key
 

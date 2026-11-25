@@ -15,15 +15,15 @@ def _frame_info(items):
     data = [o for k, o in items.items() if isinstance(o, D.G) and o.classname == "RooHist"
             and not k.startswith(("pull_", "resid_"))]
     curves = {k: o.trimmed() for k, o in items.items() if isinstance(o, D.G) and o.classname == "RooCurve"}
-    total = next((c for k, c in curves.items() if not D.parse_roofit_name(k)["components"]), None)
+    tkey, ckeys, _bands = D.roofit_curves(items)
+    total = curves.get(tkey)
     t_int = float(_trapz(total.y, total.x)) if total is not None else 0.0
     comps = []
-    for k, c in curves.items():
-        n = "+".join(D.parse_roofit_name(k)["components"])
-        if n:
-            integ = float(_trapz(c.y, c.x))
-            comps.append(dict(name=n, peak=float(np.max(c.y)), integral=integ,
-                              share=integ / t_int if t_int else float("nan")))
+    for n, k in ckeys.items():
+        c = curves[k]
+        integ = float(_trapz(c.y, c.x))
+        comps.append(dict(name=n, peak=float(np.max(c.y)), integral=integ,
+                          share=integ / t_int if t_int else float("nan")))
     return data, total, comps
 
 

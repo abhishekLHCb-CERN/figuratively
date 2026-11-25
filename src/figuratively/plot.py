@@ -226,8 +226,9 @@ class Plot:
                    stack=False, order=None, merge=None, root_colors=True) -> Plot:
         """Add a whole RooFit frame (canvas/RooPlot) with any number of components.
 
-        RooHist -> data points; RooCurve without Comp[] -> total fit; RooCurve with
-        Comp[a,b] -> one component named 'a+b'.  Each component gets its own colour and dash.
+        RooHist -> data points; RooCurve with Comp[a,b] -> one component named 'a+b'; the remaining curve
+        with the largest area -> total fit; any other curve (named with RooFit.Name(), say) -> a component
+        under that name; error bands are not drawn.  Each component gets its own colour and dash.
 
         labels : {component: legend text}     colors : {component: colour}
         styles : {component: dict(kind=, color=, linestyle=, linewidth=, alpha=, label=)}
@@ -241,19 +242,16 @@ class Plot:
         """
         objs = spec if isinstance(spec, dict) else D.load_all(spec)
         labels, colors, styles = labels or {}, colors or {}, styles or {}
-        data, totals, comps = [], [], {}
-        for name, o in objs.items():
-            if not isinstance(o, D.G):
-                continue
-            info = D.parse_roofit_name(name)
-            cname = "+".join(info["components"])
-            if re.match(r"(pull|resid)_", name) or (
-                    hide and any(_search(h, name) or _search(h, cname) for h in hide)):
-                continue  # pulls are recomputed from data and total
-            if o.classname == "RooHist":
-                data.append(o)
-            elif o.classname == "RooCurve":
-                (comps.setdefault(cname, o) if cname else totals.append(o))
+        def hidden(*texts):
+            return any(_search(h, t) for h in hide or [] for t in texts)
+
+        # pulls are recomputed from data and total; sort the curves before hiding, so that hiding the
+        # total never promotes a component to be the total
+        data = [o for name, o in objs.items() if isinstance(o, D.G) and o.classname == "RooHist"
+                and not re.match(r"(pull|resid)_", name) and not hidden(name)]
+        tkey, ckeys, _bands = D.roofit_curves(objs)
+        totals = [objs[tkey]] if tkey is not None and not hidden(tkey) else []
+        comps = {c: objs[k] for c, k in ckeys.items() if not hidden(k, c)}
         taken: set = set()
         original = list(comps)
         for label, members in (merge or {}).items():  # sum several components into one entry

@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
+## [Unreleased]
+### Fixed
+- Fit components named with `RooFit.Name()` were silently left out of the figure (also with `strict=True`). Every
+  further curve beside the total is now a component under its name; the total is the largest curve.
+- A `VisualizeError` band could be taken for the total fit, giving wrong pulls. Bands are now recognised, not drawn,
+  and reported.
+- A `RooPlot` saved to a file, or passed live from PyROOT, could not be read.
+- A canvas could fail to read (`IndexError`) when the same file also held a `RooPlot`. Objects of a canvas that cannot
+  be read are now reported, and a frame with nothing to draw gives a clear error.
+- `figuratively.h` did not compile with ROOT older than 6.32.
+- `figly tree` with an expression such as `pt/1000` wrote into a sub-folder; the file is now `..._pt_over_1000`.
+
 ## [1.1.2] - 2026-11-25
 ### Changed
 - First release archived on Zenodo (citable DOI per version). No code changes.
