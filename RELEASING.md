@@ -1,7 +1,7 @@
 # Releasing Figuratively 1.0.0
 
-Everything is prepared; **nothing has been uploaded**. Uploading needs your accounts and cannot be undone (a version
-number on PyPI can never be reused), so do these steps yourself, in this order.
+Version 1.0.0 was published to PyPI on 2026-11-25. Uploading needs your accounts and cannot be undone (a version
+number on PyPI can never be reused). The steps below are in order; for a later release see section 5 first.
 
 ## 0. Once: accounts
 - GitHub account, and a PyPI account with two-factor authentication (https://pypi.org/account/register/).
