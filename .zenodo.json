@@ -1,0 +1,16 @@
+{
+  "title": "Figuratively: publication-quality plots from ROOT files",
+  "description": "Figuratively makes publication-quality plots straight from ROOT files with uproot and matplotlib, without a ROOT installation: RooFit canvases with components and pulls, data/MC overlays with a ratio panel, 2D histograms and graphs, from one call or the figly command.",
+  "upload_type": "software",
+  "license": "MIT",
+  "creators": [
+    {"name": "Bohare, Abhishek", "affiliation": "The University of Edinburgh, UK"}
+  ],
+  "keywords": ["ROOT", "RooFit", "uproot", "matplotlib", "plotting", "high-energy physics"],
+  "access_right": "open",
+  "related_identifiers": [
+    {"relation": "isSupplementTo", "identifier": "https://github.com/abhishekLHCb-CERN/figuratively", "scheme": "url"},
+    {"relation": "isDocumentedBy", "identifier": "https://abhisheklhcb-cern.github.io/figuratively/", "scheme": "url"},
+    {"relation": "isIdenticalTo", "identifier": "https://pypi.org/project/figuratively/", "scheme": "url"}
+  ]
+}

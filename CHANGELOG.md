@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
+## [Unreleased]
+### Added
+- `.zenodo.json` and README text for Zenodo archiving (DOI issued from the next GitHub release).
+
 ## [1.0.1] - 2026-11-25
 ### Fixed
 - The `figly` command printed a full traceback for a mistyped object name or a missing file; it now prints one

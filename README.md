@@ -312,9 +312,13 @@ MIT. See `LICENSE`.
 ## Credit and citation
 
 Figuratively is written and maintained by **Abhishek Bohare**, with AI assistance (Claude Code); see `AUTHORS.md`.
-If it helps your work, please cite it (`CITATION.cff` is understood by GitHub and Zenodo):
+If it helps your work, please cite it (`CITATION.cff` and `.zenodo.json` are understood by GitHub and Zenodo):
 
-> Bohare, A. (2026). *Figuratively: publication-quality plots from ROOT files* (version 1.0.0).
+> Bohare, A. (2026). *Figuratively: publication-quality plots from ROOT files* (version 1.0.1).
+
+Each GitHub release is archived on [Zenodo](https://zenodo.org/), which issues a citable DOI per version plus one
+concept DOI for all versions. Cite the DOI of the version you used; the DOI badge and the line above are updated
+with it from the first release made after archiving was switched on.
 
 ## Safety
 
