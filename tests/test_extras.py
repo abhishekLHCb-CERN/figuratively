@@ -180,3 +180,16 @@ def test_grid_cells_can_carry_their_own_options(tree_file, hist_pair):
     assert len(g) == 3
     with pytest.raises(ValueError, match="only options"):
         fg.grid(({"logy": True},), save=False)
+
+
+def test_mono_tone_draws_2d_histograms_in_greys_and_an_explicit_cmap_wins(hist_pair):
+    p = fg.plot(f"{hist_pair}:corr", tone="mono", save=False)
+    p.draw()
+    assert p.ax.collections[0].get_cmap().name == "Greys"
+    q = fg.plot(f"{hist_pair}:corr", tone="mono", save=False)
+    q.zaxis(cmap="magma")
+    q.draw()
+    assert q.ax.collections[0].get_cmap().name == "magma"
+    r = fg.plot(f"{hist_pair}:corr", save=False)
+    r.draw()
+    assert r.ax.collections[0].get_cmap().name == "viridis"

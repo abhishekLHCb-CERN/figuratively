@@ -35,7 +35,7 @@ SIZES = {"column": (3.4, 2.8), "double": (7.0, 5.4), "slide": (13.3, 7.5)}
 _DARK = "#14181D"
 TONES: dict = {
     "colour": {"palette": None, "rc": {}, "map": {}},
-    "mono": {"palette": "mono", "rc": {}, "map": {TOTAL_COLOR: "#1A1A1A", PULL_COLOR: "#8A8A8A"}},
+    "mono": {"palette": "mono", "cmap": "Greys", "rc": {}, "map": {TOTAL_COLOR: "#1A1A1A", PULL_COLOR: "#8A8A8A"}},
     "dark": {"palette": "okabe-ito",
              "rc": {"figure.facecolor": _DARK, "axes.facecolor": _DARK, "savefig.facecolor": _DARK,
                     "text.color": "#E8E8E8", "axes.labelcolor": "#E8E8E8", "axes.edgecolor": "#E8E8E8",
@@ -129,6 +129,7 @@ class Plot:
         self._target = None  # a SubFigure when this plot is one panel of a combined figure
         self._pal_name = "figuratively"
         self._cmap: dict = {}  # colour substitutions of the chosen tone
+        self._zcmap = None  # colour map of 2D histograms implied by the tone
         self._lscale = 1.0  # line/marker scale implied by a size preset
         self._top_labels: list = []
         self._o = dict(xlabel=None, ylabel=None, unit=None, prefix="Candidates", xlim=None,
@@ -508,6 +509,7 @@ class Plot:
         spec = TONES[key]
         self._rc.update(spec["rc"])
         self._cmap = {k.lower(): v for k, v in spec["map"].items()}
+        self._zcmap = spec.get("cmap")
         if spec["palette"]:
             self.palette(spec["palette"])
         self._eff_rc = None
@@ -926,7 +928,7 @@ class Plot:
             norm = LogNorm(*lim)
         else:
             norm = Normalize(*(o["zlim"] or (None, None)))
-        mesh = self.ax.pcolormesh(h.xedges, h.yedges, v.T, cmap=o["cmap"] or "viridis", norm=norm,
+        mesh = self.ax.pcolormesh(h.xedges, h.yedges, v.T, cmap=o["cmap"] or self._zcmap or "viridis", norm=norm,
                                   rasterized=True)
         cb = self.fig.colorbar(mesh, ax=self.ax, pad=0.02)
         cb.set_label(o["zlabel"] if o["zlabel"] is not None else h.ztitle)

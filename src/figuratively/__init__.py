@@ -34,5 +34,5 @@ __all__ = [
     "tree",
     "use_style",
 ]
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __author__ = "Abhishek Bohare"

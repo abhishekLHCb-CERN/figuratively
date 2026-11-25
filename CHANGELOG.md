@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
+## [1.1.1] - 2026-11-25
+### Fixed
+- `tone="mono"` now draws 2D histograms with a grey colour map (`Plot.zaxis(cmap=...)` still wins).
+
 ## [1.1.0] - 2026-11-25
 ### Added
 - `fg.tree(...)` and `figly tree`: histogram a TTree or RNTuple branch (or an expression) with a cut and weights; the
