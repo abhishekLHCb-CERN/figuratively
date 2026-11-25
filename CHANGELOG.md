@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
+## [1.1.2] - 2026-11-25
+### Changed
+- First release archived on Zenodo (citable DOI per version). No code changes.
+
 ## [1.1.1] - 2026-11-25
 ### Fixed
 - `tone="mono"` now draws 2D histograms with a grey colour map (`Plot.zaxis(cmap=...)` still wins).
