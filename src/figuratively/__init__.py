@@ -14,6 +14,7 @@ __all__ = [
     "THESIS_RC",
     "G",
     "Plot",
+    "check",
     "config_path",
     "configure",
     "init",
@@ -26,6 +27,7 @@ __all__ = [
     "plot",
     "root_color",
     "root_tex",
+    "summary",
     "use_style",
 ]
 __version__ = "1.0.0"

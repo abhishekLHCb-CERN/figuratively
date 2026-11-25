@@ -413,12 +413,10 @@ class Plot:
     def size(self, width, height=None):
         """size(w, h) in inches, size(w) (height = 0.75 w) or a preset: 'column' (3.4 in), 'double' (7 in),
         'slide' (13.3 in). Presets also scale text, lines and markers to suit that width."""
-        preset = False
         if isinstance(width, str):
             if width not in SIZES:
                 raise ValueError(f"unknown size preset '{width}'{did_you_mean(width, SIZES)} (presets: {', '.join(SIZES)})")
             width, height = SIZES[width]
-            preset = True
         elif isinstance(width, (tuple, list)):
             if len(width) != 2:
                 raise ValueError(f"size expects (width, height) in inches, got {tuple(width)!r}")
