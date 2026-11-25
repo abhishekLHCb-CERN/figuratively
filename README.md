@@ -2,7 +2,7 @@
 
 **Publication-quality plots straight from ROOT files, with no ROOT installation.**
 
-[![PyPI](https://img.shields.io/pypi/v/figuratively)](https://pypi.org/project/figuratively/) [![Python](https://img.shields.io/pypi/pyversions/figuratively)](https://pypi.org/project/figuratively/) [![CI](https://github.com/abhishekLHCb-CERN/figuratively/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekLHCb-CERN/figuratively/actions) [![Licence: MIT](https://img.shields.io/badge/licence-MIT-green)](https://github.com/abhishekLHCb-CERN/figuratively/blob/main/LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24537248.svg)](https://doi.org/10.5281/zenodo.24537248) [![PyPI](https://img.shields.io/pypi/v/figuratively)](https://pypi.org/project/figuratively/) [![Python](https://img.shields.io/pypi/pyversions/figuratively)](https://pypi.org/project/figuratively/) [![CI](https://github.com/abhishekLHCb-CERN/figuratively/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekLHCb-CERN/figuratively/actions) [![Licence: MIT](https://img.shields.io/badge/licence-MIT-green)](https://github.com/abhishekLHCb-CERN/figuratively/blob/main/LICENSE)
 
 <!-- Before the first release replace the relative image paths below with absolute raw URLs pinned to the
      release tag (PyPI does not resolve relative paths):
@@ -342,9 +342,9 @@ If it helps your work, please cite it (`CITATION.cff` and `.zenodo.json` are und
 
 > Bohare, A. (2026). *Figuratively: publication-quality plots from ROOT files* (version 1.1.2).
 
-Each GitHub release is archived on [Zenodo](https://zenodo.org/), which issues a citable DOI per version plus one
-concept DOI for all versions. Cite the DOI of the version you used; the DOI badge and the line above are updated
-with it from the first release made after archiving was switched on.
+Each GitHub release is archived on [Zenodo](https://zenodo.org/), which issues a citable DOI per version (1.1.2 is
+[10.5281/zenodo.24537249](https://doi.org/10.5281/zenodo.24537249)) and one concept DOI for all versions,
+[10.5281/zenodo.24537248](https://doi.org/10.5281/zenodo.24537248). Cite the DOI of the version you used.
 
 ## Safety
 
