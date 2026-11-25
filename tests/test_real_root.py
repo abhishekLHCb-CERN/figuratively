@@ -122,6 +122,64 @@ def test_whole_file_mode_includes_the_rooplots(toy, tmp_path):
     assert len(made) == 7, made  # every object except the empty frame
 
 
+# ------------------------------------------------------------------ scale_x on a canvas
+@pytest.mark.parametrize("key", ["c_auto", "frame"])
+def test_scale_x_scales_the_canvas_range_with_the_data(toy, key):
+    p = fg.plot(f"{toy}:{key}", save=False, scale_x=1e-3, unit="GeV")
+    _fig, ax, _rax = p.draw()
+    assert ax.get_xlim() == pytest.approx((1.75, 1.98), abs=0.01)
+    lo, hi = ax.get_xlim()
+    data = next(s.obj for s in p.series if s.label == "Data")
+    assert ((data.x >= lo) & (data.x <= hi)).all()
+
+
+def test_a_negative_scale_keeps_the_range_in_order(toy):
+    _fig, ax, _rax = fg.plot(f"{toy}:c_auto", save=False, scale_x=-1.0, unit="MeV").draw()
+    assert ax.get_xlim() == pytest.approx((-1980, -1750))
+
+
+def test_an_explicit_xlim_is_taken_in_the_new_units(toy):
+    _fig, ax, _rax = fg.plot(f"{toy}:c_auto", save=False, scale_x=1e-3, unit="GeV", xlim=(1.8, 1.9)).draw()
+    assert ax.get_xlim() == pytest.approx((1.8, 1.9))
+
+
+# ------------------------------------------------------------------ strict= on an ordinary RooFit canvas
+@pytest.mark.parametrize("key", ["c_auto", "c_named"])
+def test_strict_accepts_a_correct_roofit_canvas(toy, key):
+    with warnings.catch_warnings():
+        warnings.filterwarnings("error", message=".*not drawn.*")
+        fg.plot(f"{toy}:{key}", save=False, strict=True)
+
+
+def test_strict_reports_a_misspelt_component_with_a_suggestion(toy):
+    with pytest.raises(ValueError, match="did you mean 'sig'"):
+        fg.plot(f"{toy}:c_auto", save=False, strict=True, labels={"sgi": "x"})
+
+
+class _Line:
+    def __init__(self, text):
+        self.text = text
+
+    def member(self, _name):
+        return self.text
+
+
+class _Box:
+    def __init__(self, name, lines=()):
+        self.members = {"fName": name, "fLines": [_Line(t) for t in lines]}
+
+    def member(self, name):
+        return self.members[name]
+
+
+def test_only_what_root_adds_by_itself_is_ignored():
+    assert D._added_by_root(_Box("title", ['A RooPlot of "x"']), "TPaveText")
+    assert D._added_by_root(_Box("ListOfColors"), "TObjArray")
+    assert not D._added_by_root(_Box("title", ["My own title"]), "TPaveText")
+    assert not D._added_by_root(_Box("model_paramBox", ["mean = 1865"]), "TPaveText")
+    assert not D._added_by_root(_Box("mine"), "TObjArray")
+
+
 # ------------------------------------------------------------------ which curve is the total
 def _curve(name, height):
     x = np.linspace(0.0, 1.0, 20)

@@ -855,14 +855,9 @@ def plot(*specs, out=None, save=True, **opts) -> Plot | list:
     for flag, key in (("logy", "logy"), ("logx", "logx")):  # what the canvas says, unless the call says otherwise
         if attrs.get(flag):
             opts.setdefault(key, True)
-    if attrs.get("xrange") and "xlim" not in opts:
-        opts["xlim"] = attrs["xrange"]
-    if attrs.get("skipped") and cfg["checks"]:
-        from collections import Counter
-
-        shown = ", ".join(f"{c} x{n}" if n > 1 else c for c, n in Counter(attrs["skipped"]).items())
-        _problem(f"the canvas holds objects that are not drawn: {shown} (add their text with info=, labels= or text=)",
-                 strict)
+    if attrs.get("xrange") and "xlim" not in opts:  # the canvas range is in the file's units: scale it too
+        lo_hi = attrs["xrange"]
+        opts["xlim"] = tuple(sorted(v * sx for v in lo_hi)) if sx else lo_hi
     p = Plot(style=cfg["style"])
     p._target = target
     if cfg["tone"] != "colour":
@@ -887,6 +882,12 @@ def plot(*specs, out=None, save=True, **opts) -> Plot | list:
             raise ValueError(f"nothing to draw: '{', '.join(str(s) for s in specs)}' holds no readable data or curves")
         first = objs[0][1]
         _overlay(p, objs, cfg, opts, strict)
+    if attrs.get("skipped") and cfg["checks"]:  # after the names are checked, so strict= reports a typo first
+        from collections import Counter
+
+        shown = ", ".join(f"{c} x{n}" if n > 1 else c for c, n in Counter(attrs["skipped"]).items())
+        _problem(f"the canvas holds objects that are not drawn: {shown} (add their text with info=, labels= or text=)",
+                 strict)
     _decorate(p, first, cfg, opts, scaled=bool(sx), texts=texts, panel=panel)
     if blind and not cfg["blind_curves"] and cfg["checks"] and res[0][1] == "frame":
         _problem("blind: the model curves are still drawn inside the blinded window; if the fit used those events, "

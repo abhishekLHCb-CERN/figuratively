@@ -223,6 +223,21 @@ def _dedupe(items) -> dict:
     return out
 
 
+def _added_by_root(obj, cn) -> bool:
+    """What ROOT puts on a canvas by itself, so leaving it out is not worth a warning (or a strict= error):
+    the colour tables that SaveAs stores and the default title box of a RooPlot. A title of your own is
+    still reported."""
+    if cn == "TObjArray":
+        return _name(obj) in ("ListOfColors", "CurrentColorPalette")
+    if cn == "TPaveText" and _name(obj) == "title":
+        try:
+            lines = [str(line.member("fTitle")).strip() for line in obj.member("fLines")]
+        except Exception:
+            return False
+        return all(not t or t.startswith("A RooPlot of ") for t in lines)
+    return False
+
+
 def _direct(pad):
     """Drawable objects, text labels and axis titles that belong directly to one pad (not its sub-pads)."""
     everything = list(pad.member("fPrimitives"))
@@ -258,7 +273,7 @@ def _direct(pad):
                 texts.append(t)
             continue
         got = list(expand(p))
-        if not got and cn != "TFrame":
+        if not got and cn != "TFrame" and not _added_by_root(p, cn):
             attrs["skipped"].append(cn or "unreadable object")
         for c in got:
             c.xtitle = getattr(c, "xtitle", "") or xt

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
+## [Unreleased]
+### Fixed
+- `scale_x=` on a TCanvas gave an empty figure: the canvas's x range was not scaled with the data.
+- `strict=True` raised on every ordinary RooFit canvas because of objects ROOT adds by itself (the default title box,
+  colour tables). These are no longer reported; a title of your own still is, and a misspelt name is reported first.
+
 ## [1.1.3] - 2026-11-25
 ### Fixed
 - Fit components named with `RooFit.Name()` were silently left out of the figure (also with `strict=True`). Every
