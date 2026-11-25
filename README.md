@@ -6,9 +6,9 @@
 
 <!-- Before the first release replace the relative image paths below with absolute raw URLs pinned to the
      release tag (PyPI does not resolve relative paths):
-     https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/01_fit_components.png -->
+     https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.0/docs/img/01_fit_components.png -->
 
-![A RooFit-style fit with six components and a pull panel, made from toy data](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/01_fit_components.png)
+![A RooFit-style fit with six components and a pull panel, made from toy data](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.0/docs/img/01_fit_components.png)
 
 *Toy data. One call: `fg.plot("fit.root:canvas")`.*
 
@@ -260,6 +260,7 @@ The ROOT colour table was extracted programmatically from the public JSROOT sour
 
 | Option | Effect |
 |---|---|
+| `tone` | overall look: colour (default), mono (greys and line styles, for print) or dark (light on dark, for slides) |
 | `preset` | a named bundle of settings: thesis, paper, slides, poster, or one of your own from the [presets.NAME] tables of figuratively.toml; the call's own keywords always win |
 | `presets` | your own presets as a dict {name: {option: value}} (usually written in figuratively.toml) |
 | `size` | figure size (w, h) in inches or a preset: 'column', 'double', 'slide' |
@@ -287,14 +288,39 @@ The ROOT colour table was extracted programmatically from the public JSROOT sour
 For finer control use the `Plot` class directly: `fg.Plot().add(...).ratio().label(...).save(...)`, or the
 raw matplotlib objects `p.fig`, `p.ax` and `p.rax`.
 
+## More than one plot: trees, grids, comparisons, tones
+
+```python
+h = fg.tree("f.root:DecayTree", "D0_M", bins=60, range=(1800, 1930), cut="D0_PT > 2000 and nTracks < 400")
+fg.plot(h)                                    # a TTree (or RNTuple) branch is a histogram like any other
+fg.plot(h, fg.tree("g.root:DecayTree", "D0_M", bins=60, range=(1800, 1930)))   # overlay two, with a ratio panel
+fg.grid(h, ("f.root:data", "f.root:mc", {"normalise": True}), "f.root:corr", shape=(1, 3), out="all.pdf")
+fg.compare("nominal.root:canvas", "variant.root:canvas", names=["nominal", "variant"])
+fg.plot("runs/*.root:canvas")                 # a pattern or a list of files: one plot each
+fg.plot("fit.root:canvas", tone="dark")       # or tone="mono" (greys and line styles, for print)
+```
+
+```bash
+figly tree f.root:DecayTree D0_M -s bins=60 -s "range=(1800,1930)" -s "cut=D0_PT > 2000"
+```
+
+- `fg.tree(spec, expr, bins, range, cut, weight)` accepts a branch or an expression (`"D0_PT / 1000"`). Cuts and
+  expressions use a checked mini-language (branch names, numbers, comparisons, `and`/`or`/`not`, `+ - * / **`,
+  `abs sqrt log log10 exp`); nothing is ever run with `eval`.
+- `fg.grid` draws every cell into one vector figure. A cell is a spec, a histogram, or a tuple to overlay; end a
+  cell with a dict to give that panel its own options.
+- `fg.compare` overlays several fits of the same data with one ratio panel per fit against the first.
+- `tone` and the presets `mono` and `dark` change the look as a whole; `thesis`, `paper`, `slides` and `poster`
+  set size and formats.
+
 ## Gallery
 
 Every image below is produced by a script in `examples/gallery/` from toy data with a fixed random seed.
 
 | | |
 |---|---|
-| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/02_data_mc_ratio.png) | ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/03_stack_log.png) |
-| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/04_hist2d.png) | |
+| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.0/docs/img/02_data_mc_ratio.png) | ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.0/docs/img/03_stack_log.png) |
+| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.0/docs/img/04_hist2d.png) | |
 
 ## Notes
 
@@ -314,7 +340,7 @@ MIT. See `LICENSE`.
 Figuratively is written and maintained by **Abhishek Bohare**, with AI assistance (Claude Code); see `AUTHORS.md`.
 If it helps your work, please cite it (`CITATION.cff` and `.zenodo.json` are understood by GitHub and Zenodo):
 
-> Bohare, A. (2026). *Figuratively: publication-quality plots from ROOT files* (version 1.0.1).
+> Bohare, A. (2026). *Figuratively: publication-quality plots from ROOT files* (version 1.1.0).
 
 Each GitHub release is archived on [Zenodo](https://zenodo.org/), which issues a citable DOI per version plus one
 concept DOI for all versions. Cite the DOI of the version you used; the DOI badge and the line above are updated

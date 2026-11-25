@@ -2,8 +2,16 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
-## [Unreleased]
+## [1.1.0] - 2026-11-25
 ### Added
+- `fg.tree(...)` and `figly tree`: histogram a TTree or RNTuple branch (or an expression) with a cut and weights; the
+  result is an ordinary histogram for `fg.plot`. Expressions use a checked mini-language, never `eval`.
+- `fg.grid(...)`: several plots in one vector figure, with per-cell options, titles and a legend policy.
+- `fg.compare(...)`: overlay several fits of the same data with ratio panels.
+- `tone="colour" | "mono" | "dark"` (also the presets `mono` and `dark`) and the `mono` palette.
+- A TTree passed to `fg.plot` now explains what to do instead of a bare error.
+### Changed
+- `palette=` now also colours overlaid histograms and graphs, not only fit components.
 - `.zenodo.json` and README text for Zenodo archiving (DOI issued from the next GitHub release).
 
 ## [1.0.1] - 2026-11-25

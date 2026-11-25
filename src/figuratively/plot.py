@@ -32,6 +32,16 @@ from .style import (
 )
 
 SIZES = {"column": (3.4, 2.8), "double": (7.0, 5.4), "slide": (13.3, 7.5)}
+_DARK = "#14181D"
+TONES: dict = {
+    "colour": {"palette": None, "rc": {}, "map": {}},
+    "mono": {"palette": "mono", "rc": {}, "map": {TOTAL_COLOR: "#1A1A1A", PULL_COLOR: "#8A8A8A"}},
+    "dark": {"palette": "okabe-ito",
+             "rc": {"figure.facecolor": _DARK, "axes.facecolor": _DARK, "savefig.facecolor": _DARK,
+                    "text.color": "#E8E8E8", "axes.labelcolor": "#E8E8E8", "axes.edgecolor": "#E8E8E8",
+                    "xtick.color": "#E8E8E8", "ytick.color": "#E8E8E8", "legend.labelcolor": "#E8E8E8"},
+             "map": {"black": "#F2F2F2", DATA_COLOR: "#F2F2F2", TOTAL_COLOR: "#FF8A7A", "white": _DARK}},
+}
 KNOWN_EXT = {".pdf", ".png", ".svg", ".eps", ".jpg", ".jpeg", ".tif", ".tiff"}
 CAP = 1.75  # error-bar cap length in points; override per series with capsize=
 H1_KINDS = {"step", "fill", "points", "band"}
@@ -118,6 +128,7 @@ class Plot:
         self._blind: list = []
         self._target = None  # a SubFigure when this plot is one panel of a combined figure
         self._pal_name = "figuratively"
+        self._cmap: dict = {}  # colour substitutions of the chosen tone
         self._lscale = 1.0  # line/marker scale implied by a size preset
         self._top_labels: list = []
         self._o = dict(xlabel=None, ylabel=None, unit=None, prefix="Candidates", xlim=None,
@@ -486,10 +497,27 @@ class Plot:
             ax.text(x, y, s, transform=ax.transAxes if coords == "axes" else ax.transData, **kw)
         return self._extra(f)
 
+    def tone(self, name: str) -> Plot:
+        """Overall look: 'colour' (default), 'mono' (greys, distinguished by line style, for print) or 'dark'
+        (light on a dark background, for slides)."""
+        key = str(name).lower()
+        if key not in TONES:
+            from .options import did_you_mean
+
+            raise ValueError(f"unknown tone '{name}'{did_you_mean(key, TONES)} (available: {', '.join(TONES)})")
+        spec = TONES[key]
+        self._rc.update(spec["rc"])
+        self._cmap = {k.lower(): v for k, v in spec["map"].items()}
+        if spec["palette"]:
+            self.palette(spec["palette"])
+        self._eff_rc = None
+        self._dirty = True
+        return self
+
     def palette(self, name: str) -> Plot:
         """Colour palette for components and series: figuratively, r4, okabe-ito, tableau10, dark2 or hcl.
         Palettes are extended with evenly spaced HCL hues, so many components never repeat a colour."""
-        _palette(name)  # validates the name
+        self._cycle = itertools.cycle(_palette(name))  # validates the name; overlays draw from it too
         self._pal_name = name
         self._dirty = True
         return self
@@ -657,6 +685,7 @@ class Plot:
 
     def _draw(self, ax, s):
         st, c, o = dict(s.style), s.color, s.obj
+        c = self._cmap.get(str(c).lower(), c) if self._cmap else c
         lab = s.label
         if isinstance(o, D.G):
             o = o.trimmed()
@@ -862,7 +891,7 @@ class Plot:
                 len(x), float(np.median(np.diff(x))) if len(x) > 1 else 1.0)
         with np.errstate(divide="ignore", invalid="ignore"):
             pull = np.where(err > 0, (y - mod) / err, 0.0)
-        rax.bar(x, pull, width=wid, color=po["color"] or PULL_COLOR, lw=0, zorder=2)
+        rax.bar(x, pull, width=wid, color=po["color"] or self._cmap.get(PULL_COLOR.lower(), PULL_COLOR), lw=0, zorder=2)
         if po["chi2"]:
             ok = err > 0
             chi2, ndf = float(np.sum(pull[ok] ** 2)), int(ok.sum()) - po["nparams"]

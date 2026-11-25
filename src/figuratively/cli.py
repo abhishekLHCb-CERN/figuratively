@@ -5,6 +5,7 @@ figly inspect FILE.root:NAME             show the components and a call to copy 
 figly init FILE.root:NAME [-o FILE.toml] write a figuratively.toml with the detected names
 figly check FILE.root:NAME [-s nparams=10]   sanity numbers: data vs curve, chi2, empty bins, large pulls
 figly summary FILE.root ... [-s fmt=csv]     one row per panel (entries, chi2, component yields)
+figly tree FILE.root:TREE BRANCH [-s bins=60 -s cut='pt > 2']   histogram a TTree branch and plot it
 figly options                            list every option
 figly header [figuratively.h]            the C++ header for ROOT macros (Figuratively::Plot(canvas))
 Extras: -s key=value (any fg.plot keyword), e.g. -s logy=True -s "xlim=(1800,1900)"."""
@@ -79,6 +80,28 @@ def main(argv=None):
         else:
             fmt = next((kv.split("=")[1] for kv in a.set if kv.startswith("fmt=")), "text")
             summary(targets, nparams=nparams, fmt=fmt)
+        return
+    if cmd == "tree":
+        from .extras import tree as _tree
+
+        if len(a.targets) != 3:
+            ap.error("tree expects FILE.root:TREE and a branch or expression: figly tree f.root:T D0_M -s bins=60")
+        tk = {}
+        rest = []
+        for kv in a.set:
+            k, sep, v = kv.partition("=")
+            if not sep or not k:
+                ap.error(f"-s expects KEY=VALUE, got '{kv}'")
+            if k in ("bins", "range", "cut", "weight", "name", "xtitle", "entry_stop"):
+                tk[k] = v if k in ("cut", "weight", "name", "xtitle") else _value(k, v)
+            else:
+                rest.append(kv)
+        h = _tree(a.targets[1], a.targets[2], **tk)
+        opts = {"strict": True} if a.strict else {}
+        for kv in rest:
+            k, _, v = kv.partition("=")
+            opts[k] = _value(k, v)
+        plot(h, out=a.out or f"plots/{h.name}_{a.targets[2]}", **opts)
         return
     if cmd == "options":
         options()

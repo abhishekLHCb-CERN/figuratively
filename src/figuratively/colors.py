@@ -182,6 +182,7 @@ ROOT_HATCH = {3004: "///", 3005: "\\\\\\", 3006: "|||", 3007: "---", 3003: "xxx"
 
 # ---------------------------------------------------------------- R-style palettes
 PALETTES: dict[str, list[str]] = {
+    "mono": ["#1A1A1A", "#5C5C5C", "#8A8A8A", "#B0B0B0", "#3A3A3A", "#747474", "#9C9C9C", "#C4C4C4"],
     "figuratively": list(COMP_PALETTE),
     # R >= 4.0 default palette()
     "r4": ["#DF536B", "#2297E6", "#61D04F", "#F5C710", "#CD0BBC", "#28E2E5", "#9E9E9E"],

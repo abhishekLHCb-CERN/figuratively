@@ -24,7 +24,7 @@ _TYPES = {"labels": (dict, list, tuple), "colors": dict, "formats": (list, tuple
           "dpi": (int, float, type(None)), "transparent": bool, "nparams": (int, type(None)),
           "label": (str, type(None)), "exp": str, "unit": (str, type(None)), "com": (str, int, float, type(None)),
           "lumi": (str, int, float, type(None)), "outdir": str, "style": (str, type(None)), "data": bool,
-          "palette": str, "root_colors": (bool, str), "blind_curves": bool, "suffix": str, "canvas_text": object, "preset": (str, list, tuple, type(None)), "presets": dict, "view": bool, "checks": bool, "ylabel_prefix": str, "pull_label": str,
+          "palette": str, "tone": str, "root_colors": (bool, str), "blind_curves": bool, "suffix": str, "canvas_text": object, "preset": (str, list, tuple, type(None)), "presets": dict, "view": bool, "checks": bool, "ylabel_prefix": str, "pull_label": str,
           "ratio_label": str, "blind_label": str,
           "data_label": str, "total_label": str, "data_pattern": str}
 
@@ -186,7 +186,9 @@ def _resolve(spec):
         return name, "frame", D.load_all(obj), []
     c = D.convert(obj)
     if c is None:
-        raise TypeError(f"{spec} is a {obj.classname}, which figuratively cannot draw")
+        hint = (f"; histogram a branch with fg.tree('{spec}', 'BRANCH', bins=60) and plot the result"
+                if obj.classname == "TTree" else "")
+        raise TypeError(f"{spec} is a {obj.classname}, which figuratively cannot draw{hint}")
     return name, "obj", c, []
 
 
@@ -716,6 +718,8 @@ BUILTIN_PRESETS: dict = {
     "paper": {"size": "column", "formats": ("pdf",)},
     "slides": {"size": "slide", "formats": ("png",), "dpi": 200},
     "poster": {"size": (16, 11), "font": 1.3, "formats": ("pdf",)},
+    "mono": {"tone": "mono"},
+    "dark": {"tone": "dark", "formats": ("png",)},
 }
 
 
@@ -863,6 +867,10 @@ def plot(*specs, out=None, save=True, **opts) -> Plot | list:
                  strict)
     p = Plot(style=cfg["style"])
     p._target = target
+    if cfg["tone"] != "colour":
+        p.tone(cfg["tone"])
+        if "root_colors" not in called:
+            cfg["root_colors"] = False  # ROOT's own colours would fight the chosen tone
     if cfg["palette"] != "figuratively":
         p.palette(cfg["palette"])
     comparing = len(res) >= 2 and all(r[1] == "frame" and _is_roofit(r[2]) for r in res)

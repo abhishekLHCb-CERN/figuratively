@@ -80,6 +80,7 @@ Generated from the option registry (`fg.options()` prints the same list).
 
 | Option | Effect |
 |---|---|
+| `tone` | overall look: colour (default), mono (greys and line styles, for print) or dark (light on dark, for slides) |
 | `preset` | a named bundle of settings: thesis, paper, slides, poster, or one of your own from the [presets.NAME] tables of figuratively.toml; the call's own keywords always win |
 | `presets` | your own presets as a dict {name: {option: value}} (usually written in figuratively.toml) |
 | `size` | figure size (w, h) in inches or a preset: 'column', 'double', 'slide' |

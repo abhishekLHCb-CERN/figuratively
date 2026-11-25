@@ -15,7 +15,7 @@ DEFAULTS: dict = dict(
     formats=("pdf", "png"), outdir="plots", style="LHCb2", dpi=None, transparent=False,
     labels={}, colors={}, info=(), nparams=None,
     data_label="Data", total_label="Total fit", data_pattern=r"data",
-    palette="figuratively", root_colors=True, blind_curves=False, suffix="", canvas_text=True,
+    palette="figuratively", tone="colour", root_colors=True, blind_curves=False, suffix="", canvas_text=True,
     ylabel_prefix="Candidates", pull_label="Pull", ratio_label="Data / MC", blind_label="Blinded",
     preset=None, presets={}, view=False, checks=True,
 )
@@ -45,6 +45,8 @@ OPTIONS: list[Opt] = [
     _O("stack", "stack the components as filled areas", True, "fit", "components"),
     _O("root_colors", "True takes colours, line styles and fills from the ROOT objects (refined, and kept visibly "
        "apart); 'components' leaves the total in the house colour; False ignores ROOT", True, "fit", "components"),
+    _O("tone", "overall look: colour (default), mono (greys and line styles, for print) or dark (light on dark, for slides)",
+       "mono", "any", "figure"),
     _O("palette", "colours for components without a ROOT colour: figuratively, r4, okabe-ito, tableau10, dark2, hcl",
        "okabe-ito", "any", "components"),
     _O("pull", "False to drop the pull panel, or a dict of Plot.pull options: {'ylim': (-4, 4), 'mode': 'centre'}; the "
