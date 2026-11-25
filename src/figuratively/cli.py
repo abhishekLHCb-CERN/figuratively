@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import ast
+import sys
+import warnings
 from pathlib import Path
 
 from . import data as D
@@ -50,6 +52,7 @@ def main(argv=None):
     ap.add_argument("-s", "--set", action="append", default=[], metavar="KEY=VALUE")
     ap.add_argument("--force", action="store_true", help="overwrite in `init`")
     ap.add_argument("--strict", action="store_true", help="turn warnings about unmatched names into errors")
+    ap.add_argument("--debug", action="store_true", help="show the full traceback on errors")
     a = ap.parse_args(argv)
     cmd = a.targets[0]
     if cmd == "ls":
@@ -102,5 +105,30 @@ def main(argv=None):
             plot(t, **opts)
 
 
+def _one_line_warning(message, category, filename, lineno, file=None, line=None):
+    print(f"figuratively: warning: {message}", file=file or sys.stderr)
+
+
+def console(argv=None):
+    """Entry point of the `figuratively` and `figly` commands: one clean line for expected errors, exit code 1.
+
+    `--debug` (or FIGURATIVELY_DEBUG=1) restores the full traceback. `main` itself still raises, for use from Python.
+    """
+    import os
+
+    args = sys.argv[1:] if argv is None else list(argv)
+    debug = "--debug" in args or bool(os.environ.get("FIGURATIVELY_DEBUG"))
+    if not debug:
+        warnings.showwarning = _one_line_warning
+    try:
+        main(argv)
+    except (KeyError, ValueError, OSError) as e:
+        if debug:
+            raise
+        msg = e.args[0] if isinstance(e, KeyError) and e.args else str(e)
+        print(f"figuratively: error: {msg}", file=sys.stderr)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    main()
+    console()

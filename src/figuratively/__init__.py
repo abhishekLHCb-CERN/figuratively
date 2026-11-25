@@ -30,5 +30,5 @@ __all__ = [
     "summary",
     "use_style",
 ]
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Abhishek Bohare"

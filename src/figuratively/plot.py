@@ -4,6 +4,7 @@ from __future__ import annotations
 import fnmatch
 import inspect as _inspect
 import itertools
+import logging
 import math
 import re
 import warnings
@@ -36,6 +37,18 @@ CAP = 1.75  # error-bar cap length in points; override per series with capsize=
 H1_KINDS = {"step", "fill", "points", "band"}
 G_KINDS = {"line", "points", "band", "fill"}
 
+
+
+class _QuietFonts:
+    """Mute fontTools' harmless 'timestamp seems very low' notices while matplotlib embeds fonts in a PDF."""
+
+    def __enter__(self):
+        self._log = logging.getLogger("fontTools")
+        self._old = self._log.level
+        self._log.setLevel(logging.ERROR)
+
+    def __exit__(self, *exc):
+        self._log.setLevel(self._old)
 
 @dataclass
 class Series:
@@ -1090,7 +1103,7 @@ class Plot:
             targets = [Path(f"{stem}.{f.lstrip('.')}") for f in formats]
         else:
             targets = [p if has_ext else Path(f"{p}.pdf")]
-        with self._rc_context():
+        with self._rc_context(), _QuietFonts():
             for t in targets:
                 fig.savefig(t, dpi=dpi, transparent=transparent)
         return self
@@ -1133,7 +1146,7 @@ class Panels(list):
         stem = p.with_suffix("") if has_ext else p
         targets = ([Path(f"{stem}.{f.lstrip('.')}") for f in formats] if formats
                    else [p if has_ext else Path(f"{p}.pdf")])
-        with self[0]._rc_context():
+        with self[0]._rc_context(), _QuietFonts():
             for t in targets:
                 self.fig.savefig(t, dpi=dpi, transparent=transparent)
         return self

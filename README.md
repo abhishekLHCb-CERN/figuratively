@@ -6,9 +6,9 @@
 
 <!-- Before the first release replace the relative image paths below with absolute raw URLs pinned to the
      release tag (PyPI does not resolve relative paths):
-     https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.0/docs/img/01_fit_components.png -->
+     https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/01_fit_components.png -->
 
-![A RooFit-style fit with six components and a pull panel, made from toy data](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.0/docs/img/01_fit_components.png)
+![A RooFit-style fit with six components and a pull panel, made from toy data](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/01_fit_components.png)
 
 *Toy data. One call: `fg.plot("fit.root:canvas")`.*
 
@@ -293,8 +293,8 @@ Every image below is produced by a script in `examples/gallery/` from toy data w
 
 | | |
 |---|---|
-| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.0/docs/img/02_data_mc_ratio.png) | ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.0/docs/img/03_stack_log.png) |
-| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.0/docs/img/04_hist2d.png) | |
+| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/02_data_mc_ratio.png) | ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/03_stack_log.png) |
+| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.0.1/docs/img/04_hist2d.png) | |
 
 ## Notes
 

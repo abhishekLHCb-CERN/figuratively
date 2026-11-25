@@ -340,3 +340,21 @@ def test_combined_figure_has_one_axes_pair_per_panel(tmp_path):
     assert len(shaped) == 5
     with pytest.raises(ValueError, match="do not fit"):
         auto._plot_pads(["t.root:c"], res, tmp_path / "bad.png", True, cfg, {}, (1, 3))
+
+
+# ------------------------------------------------------------------ cli errors (1.0.1)
+def test_console_reports_a_typo_as_one_line_not_a_traceback(hist_file, capsys):
+    from figuratively.cli import console
+    with pytest.raises(SystemExit) as e:
+        console([f"{hist_file}:dat"])
+    assert e.value.code == 1
+    err = capsys.readouterr().err
+    assert err.startswith("figuratively: error:") and "did you mean 'data'" in err and "Traceback" not in err
+
+
+def test_console_reports_a_missing_file_cleanly(tmp_path, capsys):
+    from figuratively.cli import console
+    with pytest.raises(SystemExit) as e:
+        console([f"{tmp_path}/nope.root:x"])
+    assert e.value.code == 1
+    assert "Traceback" not in capsys.readouterr().err

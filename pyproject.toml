@@ -45,8 +45,8 @@ Issues = "https://github.com/abhishekLHCb-CERN/figuratively/issues"
 Changelog = "https://github.com/abhishekLHCb-CERN/figuratively/blob/main/CHANGELOG.md"
 
 [project.scripts]
-figuratively = "figuratively.cli:main"
-figly = "figuratively.cli:main"
+figuratively = "figuratively.cli:console"
+figly = "figuratively.cli:console"
 
 [tool.hatch.version]
 path = "src/figuratively/__init__.py"

@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
+## [1.0.1] - 2026-11-25
+### Fixed
+- The `figly` command printed a full traceback for a mistyped object name or a missing file; it now prints one
+  `figuratively: error: ...` line (with the "did you mean" hint) and exits with code 1. `--debug` restores the traceback.
+- Warnings from the command line are one clean line instead of repeating the source line.
+- Saving a PDF no longer prints repeated fontTools "timestamp seems very low" notices.
+
 ## [1.0.0] - 2026-11-25
 ### Added
 - `figuratively.plot("file.root:object")`: RooFit canvases (data, total, components, pulls), data/MC overlays with
