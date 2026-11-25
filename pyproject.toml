@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "figuratively"
+dynamic = ["version"]
+authors = [{ name = "Abhishek Bohare" }]
+maintainers = [{ name = "Abhishek Bohare" }]
+description = "Figures, figuratively speaking: one call from a ROOT file to a publication plot (no ROOT install needed)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["root", "uproot", "mplhep", "matplotlib", "roofit", "hep", "particle-physics", "plotting", "pull-plot"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+dependencies = [
+    "numpy",
+    "matplotlib>=3.7",
+    "mplhep>=0.3.40",
+    "uproot>=5,<6",
+    "tomli; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "build", "twine", "bandit", "pip-audit"]
+docs = ["mkdocs>=1.5", "mkdocs-material>=9.5"]
+
+[project.urls]
+Homepage = "https://github.com/abhishekLHCb-CERN/figuratively"
+Documentation = "https://abhishekLHCb-CERN.github.io/figuratively/"
+Source = "https://github.com/abhishekLHCb-CERN/figuratively"
+Issues = "https://github.com/abhishekLHCb-CERN/figuratively/issues"
+Changelog = "https://github.com/abhishekLHCb-CERN/figuratively/blob/main/CHANGELOG.md"
+
+[project.scripts]
+figuratively = "figuratively.cli:main"
+figly = "figuratively.cli:main"
+
+[tool.hatch.version]
+path = "src/figuratively/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/figuratively"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md", "LICENSE", "NOTICE", "AUTHORS.md", "SECURITY.md", "CONTRIBUTING.md",
+           "CHANGELOG.md", "CITATION.cff", "pyproject.toml",
+           "examples/gallery/*.py", "examples/minimal"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

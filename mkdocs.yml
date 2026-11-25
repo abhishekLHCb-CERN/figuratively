@@ -1,0 +1,22 @@
+site_name: Figuratively
+site_description: Publication-quality plots from ROOT files, without a ROOT installation.
+site_author: Abhishek Bohare
+copyright: Copyright &copy; 2026 Abhishek Bohare. MIT licence.
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+    - scheme: slate
+      primary: indigo
+  features: [navigation.sections, content.code.copy, search.highlight]
+nav:
+  - Home: index.md
+  - Quick start: quickstart.md
+  - Cookbook: cookbook.md
+  - Trust the figure: checks.md
+  - Using it with ROOT: root.md
+  - All options: options.md
+  - Troubleshooting: troubleshooting.md
+  - About and credit: about.md
+markdown_extensions: [admonition, tables, toc, pymdownx.superfences]

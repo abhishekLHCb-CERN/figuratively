@@ -1,0 +1,42 @@
+Figuratively
+Copyright (c) 2026 Abhishek Bohare. Released under the MIT licence (see LICENSE).
+
+This product uses the following third-party material.
+
+1. ROOT colour table (src/figuratively/_rootcolor_table.py)
+   The numeric RGB values of ROOT's standard colours were extracted programmatically from the public JSROOT
+   source (https://github.com/root-project/jsroot), which is MIT licensed:
+
+   The MIT License
+   
+   Copyright (c) 2013-2026 JavaScript ROOT authors
+   
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+   
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+   
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE.
+
+   The values themselves are ROOT's (https://root.cern, LGPL-2.1-or-later).
+
+2. Runtime dependencies, installed separately and not redistributed here: numpy (BSD-3-Clause), matplotlib
+   (matplotlib licence, PSF-based), mplhep (MIT), uproot (BSD-3-Clause), tomli on Python < 3.11 (MIT).
+
+3. Colour palettes: the "R4", "Okabe-Ito", "Tableau 10" and "Dark2" palettes are published colour lists (R, Okabe
+   and Ito 2008, Tableau, ColorBrewer by Cynthia Brewer); only the hex values are used.
+
+Trademarks: ROOT, RooFit, LHC and LHCb are names of software and experiments owned by their respective
+organisations. Figuratively is independent software. It is not affiliated with or endorsed by CERN or any
+experiment, and it never draws an experiment label unless the user asks for it.
