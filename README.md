@@ -6,9 +6,9 @@
 
 <!-- Before the first release replace the relative image paths below with absolute raw URLs pinned to the
      release tag (PyPI does not resolve relative paths):
-     https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.2/docs/img/01_fit_components.png -->
+     https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.3/docs/img/01_fit_components.png -->
 
-![A RooFit-style fit with six components and a pull panel, made from toy data](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.2/docs/img/01_fit_components.png)
+![A RooFit-style fit with six components and a pull panel, made from toy data](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.3/docs/img/01_fit_components.png)
 
 *Toy data. One call: `fg.plot("fit.root:canvas")`.*
 
@@ -321,8 +321,8 @@ Every image below is produced by a script in `examples/gallery/` from toy data w
 
 | | |
 |---|---|
-| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.2/docs/img/02_data_mc_ratio.png) | ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.2/docs/img/03_stack_log.png) |
-| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.2/docs/img/04_hist2d.png) | |
+| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.3/docs/img/02_data_mc_ratio.png) | ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.3/docs/img/03_stack_log.png) |
+| ![](https://raw.githubusercontent.com/abhishekLHCb-CERN/figuratively/v1.1.3/docs/img/04_hist2d.png) | |
 
 ## Notes
 
@@ -342,11 +342,11 @@ MIT. See `LICENSE`.
 Figuratively is written and maintained by **Abhishek Bohare**, with AI assistance (Claude Code); see `AUTHORS.md`.
 If it helps your work, please cite it (`CITATION.cff` and `.zenodo.json` are understood by GitHub and Zenodo):
 
-> Bohare, A. (2026). *Figuratively: publication-quality plots from ROOT files* (version 1.1.2).
+> Bohare, A. (2026). *Figuratively: publication-quality plots from ROOT files* (version 1.1.3).
 
-Each GitHub release is archived on [Zenodo](https://zenodo.org/), which issues a citable DOI per version (1.1.2 is
-[10.5281/zenodo.24537249](https://doi.org/10.5281/zenodo.24537249)) and one concept DOI for all versions,
-[10.5281/zenodo.24537248](https://doi.org/10.5281/zenodo.24537248). Cite the DOI of the version you used.
+Each GitHub release is archived on [Zenodo](https://zenodo.org/), which issues a citable DOI per version and one
+concept DOI for all versions, [10.5281/zenodo.24537248](https://doi.org/10.5281/zenodo.24537248). Cite the DOI of the
+version you used; the Zenodo record lists them all.
 
 ## Safety
 

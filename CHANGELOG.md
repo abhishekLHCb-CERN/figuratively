@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format: Keep a Changelog; versioning: SemVer.
 
-## [Unreleased]
+## [1.1.3] - 2026-11-25
 ### Fixed
 - Fit components named with `RooFit.Name()` were silently left out of the figure (also with `strict=True`). Every
   further curve beside the total is now a component under its name; the total is the largest curve.
